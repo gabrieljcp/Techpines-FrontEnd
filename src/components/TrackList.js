@@ -9,7 +9,6 @@ const TrackList = ({ tracks, onDeleteFaixa, onFaixaClick }) => {
         <div key={track.id} className="track-item" onClick={() => onFaixaClick(track.name)} >
           <h3>{track.name}</h3>
           <button className="delete-faixa-button" onClick={(e) => {
-                console.log("AAAAAA");
                 e.stopPropagation();
                 onDeleteFaixa(track.id);
             }}

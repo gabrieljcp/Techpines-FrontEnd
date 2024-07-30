@@ -82,8 +82,8 @@ const Home = () => {
     };
 
     const fetchFaixa = async (faixa) => {
-        if (!album) {
-            alert('Por favor, digite ums faixa.');
+        if (!faixa) {
+            alert('Por favor, digite uma faixa.');
             return;
         }
 
@@ -98,6 +98,7 @@ const Home = () => {
             setTracks([response.data]);
             setSelectedAlbum(response.data.album_id);
           } catch (error) {
+            alert('Faixa não encontrada, favor tentar novamente');
             console.error('Erro ao buscar faixas:', error);
           }
     };
@@ -219,7 +220,7 @@ const Home = () => {
         {selectedAlbum && (
         <div>
             <div className="titulo1">
-                <h1>faixas</h1>
+                <h1>Faixas</h1>
                 <button className="search-button" onClick={() => setInputVisibleFaixa(!isInputVisibleFaixa)}>
                     <SearchIcon />
                 </button>
