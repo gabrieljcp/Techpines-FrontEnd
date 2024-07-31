@@ -23,6 +23,7 @@ import Albuns from '../Albuns';
 import Faixas from '../Faixas';
 import Contato from '../Contato';
 import Biografia from '../Biografia';
+import Home from '../Home/index';
 
 const drawerWidth = 240;
 
@@ -136,9 +137,11 @@ export default function Discografia() {
           ))}
         </List>
       </Drawer>
+      
       <Main open={open}>
         <DrawerHeader />
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/albuns" element={<Albuns />} />
           <Route path="/faixas" element={<Faixas />} />
           <Route path="/contato" element={<Contato />} />

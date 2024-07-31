@@ -8,8 +8,10 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
 import api from '../../services/api';
-import { Box, IconButton, Modal, TextField, Tooltip } from '@mui/material';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Box, IconButton, Input, Modal, TextField, Tooltip } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import './styles.css';
+import SearchIcon from '@mui/icons-material/Search';
 
 const Container = styled('div')({
   display: 'flex',
@@ -33,6 +35,7 @@ const modalStyle = {
 
 export default function BasicCard() {
   const [albums, setAlbums] = useState([]);
+  const [album, setAlbum] = useState([]);
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -74,6 +77,33 @@ export default function BasicCard() {
     }
   };
 
+  const handleKeyDownAlbum = async (event) => {
+    if (event.key === 'Enter') {
+        if (album == '') {
+            try {
+                const response = await api.get('api/albuns/listar');
+                setAlbums(response.data);
+              } catch (error) {
+                console.error('Erro ao buscar álbuns:', error);
+              }
+              return;
+        }
+        
+        try {
+        const response = await api.get('api/album/listar', {
+            params: {
+                name: album
+            }
+              });
+          
+          setAlbums([response.data]);
+        } catch (error) {
+          alert('Álbum não encontrado!');  
+          console.error('Álbum não cadastrado', error);
+        }
+    }
+  };
+
   const handleDeleteAlbum = async (albumId) => {
     try {
         await api.delete('api/albuns/deletar', {
@@ -93,9 +123,18 @@ export default function BasicCard() {
 
   return (
     <>
-      <Typography variant="h3" gutterBottom>
-        Álbuns
-      </Typography>
+      <div className="container">
+        <Typography variant="h3" gutterBottom>
+            Álbuns
+        </Typography>
+        <Input 
+            placeholder="Pesquisar álbum" 
+            startAdornment={<SearchIcon />}
+            value={album}
+            onChange={(e) => setAlbum(e.target.value)}
+            onKeyDown={handleKeyDownAlbum}
+        />
+      </div>
       <Container>
         {albums.map((album) => (
           <Card sx={{ minWidth: 275 }} key={album.id}>

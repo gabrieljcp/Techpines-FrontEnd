@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
-import { Divider } from '@mui/material';
-import { Box, IconButton, Modal, TextField, Tooltip } from '@mui/material';
+import { Box, IconButton, Input, Modal, TextField, Tooltip } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import api from '../../services/api';
-import { Navigate, useNavigate } from 'react-router-dom';
-
-
+import SearchIcon from '@mui/icons-material/Search';
 
 const Faixas = () => {
   const location = useLocation();
@@ -21,6 +18,7 @@ const Faixas = () => {
   const handleClose = () => setOpen(false);
   const [newTrackTitle, setNewTrackTitle] = useState('');
   const [tracks, setTracks] = useState([]);
+  const [track, setTrack] = useState([]);
 
   useEffect(() => {
   const fetchTracks = async () => {
@@ -75,6 +73,37 @@ const Faixas = () => {
     }
   };
 
+  const handleKeyDownTrack = async (event) => {
+    if (event.key === 'Enter') {
+        if (track == '') {
+            try {
+                const response = await api.get('api/faixas/listar', {
+                    params: {
+                      album_id: album.id
+                    }
+                  });
+                setTracks(response.data);
+              } catch (error) {
+                console.error('Erro ao buscar faixas:', error);
+              }
+              return;
+        }
+        
+        try {
+        const response = await api.get('api/faixa/listar', {
+            params: {
+                name: track
+            }
+              });
+          
+          setTracks([response.data]);
+        } catch (error) {
+          alert('Álbum não encontrado!');  
+          console.error('Álbum não cadastrado', error);
+        }
+    }
+  };
+
   const Container = styled('div')({
     display: 'flex',
     flexWrap: 'wrap',
@@ -105,8 +134,18 @@ const Faixas = () => {
   
   return (
     <div>
-      <Typography variant="h4">Todas as Faixas do álbum: {album.name}</Typography>
-      <Divider />
+      <div className="container">
+        <Typography variant="h4" gutterBottom>
+        Todas as Faixas do álbum: {album.name}
+        </Typography>
+        <Input 
+            placeholder="Pesquisar faixa" 
+            startAdornment={<SearchIcon />}
+            value={track}
+            onChange={(e) => setTrack(e.target.value)}
+            onKeyDown={handleKeyDownTrack}
+        />
+      </div>
       <Container gutterBottom>
         {tracks.map((track) => (
           <Card sx={{ minWidth: 275 }} key={track.id}>
