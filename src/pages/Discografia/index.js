@@ -24,6 +24,8 @@ import Faixas from '../Faixas';
 import Contato from '../Contato';
 import Biografia from '../Biografia';
 import Home from '../Home/index';
+import { Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -74,12 +76,18 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 export default function Discografia() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleDrawerOpen = () => {
     setOpen(true);
   };
 
   const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
+  const handleButton = () => {
+    navigate('/');
     setOpen(false);
   };
 
@@ -115,7 +123,10 @@ export default function Discografia() {
         anchor="left"
         open={open}
       >
-        <DrawerHeader>
+        <DrawerHeader color="primary">
+          <Button size="md" color="primary" onClick={() => handleButton()}>
+            INÍCIO
+          </Button>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>

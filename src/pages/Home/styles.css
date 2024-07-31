@@ -5,7 +5,23 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('https://cultura.uol.com.br/upload/radio/estudiof/20210721172843_est-dio-f-21-07-fm-2-.png');
-  background-size: cover;
+  background-image: url('https://img.irroba.com.br/filters:fill(transparent):quality(80)/interade/catalog/produtos/quadros-decorativos/991.png');
+  background-size: contain;
   background-position: center;
+  background-color: rgba(255, 250, 250, 0.5);
+}
+
+
+.app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('https://img.irroba.com.br/filters:fill(transparent):quality(80)/interade/catalog/produtos/quadros-decorativos/991.png');
+  background-size: contain;
+  background-position: center;
+  opacity: 0.4; /* Define a transparência da imagem */
+  z-index: -1; /* Coloca o pseudo-elemento atrás do conteúdo */
 }

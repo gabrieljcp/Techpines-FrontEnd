@@ -122,7 +122,7 @@ export default function BasicCard() {
   };
 
   return (
-    <>
+    <div>
       <div className="container">
         <Typography variant="h3" gutterBottom>
             Álbuns
@@ -185,6 +185,6 @@ export default function BasicCard() {
             </Box>
         </Modal>
       </Container>
-    </>
+    </div>
   );
 }

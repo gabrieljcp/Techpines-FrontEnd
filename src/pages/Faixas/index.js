@@ -12,64 +12,62 @@ import SearchIcon from '@mui/icons-material/Search';
 
 const Faixas = () => {
   const location = useLocation();
-  const album  = location.state?.album;
+  const album = location.state?.album;
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
   const [newTrackTitle, setNewTrackTitle] = useState('');
   const [tracks, setTracks] = useState([]);
-  const [track, setTrack] = useState([]);
+  const [track, setTrack] = useState('');
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   useEffect(() => {
-  const fetchTracks = async () => {
+    if (album) {
+      fetchTracks(album.id);
+    } else {
+      listarTodasFaixas();
+    }
+  }, [album]);
+
+  const fetchTracks = async (albumId) => {
     try {
-        const response = await api.get('api/faixas/listar', {
-          params: {
-            album_id: album.id
-          }
-        });
-        setTracks(response.data);
-      } catch (error) {
-        console.error('Erro ao buscar faixas:', error);
-      }
+      const response = await api.get('api/faixas/listar', {
+        params: { album_id: albumId },
+      });
+      setTracks(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar faixas:', error);
+    }
   };
 
-  fetchTracks();
-  }, []);
+  const listarTodasFaixas = async () => {
+    try {
+      const response = await api.get('api/faixas/todas/listar');
+      setTracks(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar todas as faixas:', error);
+    }
+  };
 
   const handleKeyDown = async (event) => {
-    if (event.key === 'Enter') {
-        if (newTrackTitle == '') {
-            alert('Por favor, digite um título para a faixa.');
-            return;
-        }
-        
-        try {
-          const newTrack = {
-            album_id: album.id,
-            name: newTrackTitle
-          };  
-          const response = await api.post('api/faixas/criar', newTrack);
-          
-          setTracks([...tracks, response.data]);
-          setNewTrackTitle('');
-          handleClose();
-        } catch (error) {
-          console.error('Erro ao adicionar faixa:', error);
-        }
+    if (event.key === 'Enter' && newTrackTitle.trim() !== '') {
+      try {
+        const newTrack = { album_id: album.id, name: newTrackTitle };
+        const response = await api.post('api/faixas/criar', newTrack);
+        setTracks([...tracks, response.data]);
+        setNewTrackTitle('');
+        handleClose();
+      } catch (error) {
+        console.error('Erro ao adicionar faixa:', error);
+      }
     }
   };
 
   const handleDeleteTrack = async (trackId) => {
     try {
-        await api.delete('api/faixas/deletar', {
-            params: {
-              id: trackId
-            }
-          });
-        setTracks(tracks.filter((track) => track.id !== trackId));
+      await api.delete(`api/faixas/deletar/${trackId}`);
+      setTracks(tracks.filter((track) => track.id !== trackId));
     } catch (error) {
-      console.error('Erro ao excluir álbum:', error);
+      console.error('Erro ao excluir faixa:', error);
     }
   };
 
@@ -111,82 +109,90 @@ const Faixas = () => {
     justifyContent: 'center',
     padding: '16px',
   });
-  
-  const modalStyle = {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      width: 400,
-      bgcolor: 'background.paper',
-      border: '2px solid #000',
-      boxShadow: 24,
-      p: 4,
-    };
 
-  if (!album) {
-    return (
-      <div>
-        <Typography variant="h5">Todas as Faixas</Typography>
-      </div>
-    );
-  }
-  
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
+
   return (
     <div>
       <div className="container">
         <Typography variant="h4" gutterBottom>
-        Todas as Faixas do álbum: {album.name}
+          {album ? `Todas as Faixas do álbum: ${album.name}` : 'Todas as Faixas da dupla: Tião Carreiro e Pardinho'}
         </Typography>
-        <Input 
-            placeholder="Pesquisar faixa" 
-            startAdornment={<SearchIcon />}
-            value={track}
-            onChange={(e) => setTrack(e.target.value)}
-            onKeyDown={handleKeyDownTrack}
+        <Input
+          placeholder="Pesquisar faixa"
+          startAdornment={<SearchIcon />}
+          value={track}
+          onChange={(e) => setTrack(e.target.value)}
+          onKeyDown={handleKeyDownTrack}
         />
       </div>
-      <Container gutterBottom>
+      <Container>
         {tracks.map((track) => (
           <Card sx={{ minWidth: 275 }} key={track.id}>
             <CardContent>
-              <Typography sx={{ fontSize: 18 }} color="text.secondary" gutterBottom>
-                {track.name}
-              </Typography>
+                {album 
+                ? 
+                    <Typography sx={{ fontSize: 18 }} color="text.secondary" gutterBottom>
+                        {track.name} 
+                    </Typography>    
+                :   <>
+                        <Typography sx={{ fontSize: 18 }} color="text.secondary" gutterBottom>
+                            Faixa: {track.name} 
+                        </Typography>
+                        <Typography sx={{ fontSize: 18 }} color="text.secondary" gutterBottom>
+                            Álbum: {track.album_name}
+                        </Typography>
+                    </>
+                }
             </CardContent>
-            <CardActions>
-              <Button
-                size="small"
-                sx={{ fontSize: '0.7rem', padding: '2px 5px', ml: 1 }}
-                onClick={() => handleDeleteTrack(track.id)}
-              >
-                Excluir Faixa
-              </Button>
-            </CardActions>
+            {album 
+                ? 
+                        <CardActions>
+                            <Button
+                            size="small"
+                            sx={{ fontSize: '0.7rem', padding: '2px 5px', ml: 1 }}
+                            onClick={() => handleDeleteTrack(track.id)}
+                            >
+                            Excluir Faixa
+                            </Button>
+                        </CardActions>    
+                :   <></>
+            }
           </Card>
         ))}
-        <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'center', alignItems: 'center', p: 2 }}>
-            <Button onClick={handleOpen} size="large" variant="contained">Adicionar nova faixa</Button>
-        </Card>
-        <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="modal-title"
-            aria-describedby="modal-description"
-        >
-            <Box sx={modalStyle}>
-                <Typography id="modal-title" variant="h6" component="h2">
-                    Adicionar Nova Faixa
-                </Typography>
-                <TextField 
-                    id="standard-basic" 
-                    label="Título" 
-                    variant="standard" 
-                    value={newTrackTitle}
-                    onChange={(e) => setNewTrackTitle(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                />
-            </Box>
+         {album 
+            ? 
+                <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'center', alignItems: 'center', p: 2 }}>
+                    <Button onClick={handleOpen} size="large" variant="contained">
+                    Adicionar nova faixa
+                    </Button>
+                </Card>   
+            :   <></>
+        }
+        <Modal open={open} onClose={handleClose} aria-labelledby="modal-title" aria-describedby="modal-description">
+          <Box sx={modalStyle}>
+            <Typography id="modal-title" variant="h6" component="h2">
+              Adicionar Nova Faixa
+            </Typography>
+            <TextField
+              id="standard-basic"
+              label="Título"
+              variant="standard"
+              value={newTrackTitle}
+              onChange={(e) => setNewTrackTitle(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </Box>
         </Modal>
       </Container>
     </div>
