@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
-import { Box, IconButton, Input, Modal, TextField, Tooltip } from '@mui/material';
+import { Box, IconButton, Input, Modal, TextField} from '@mui/material';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -9,16 +9,17 @@ import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import api from '../../services/api';
 import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
 
 const Faixas = () => {
   const location = useLocation();
   const album = location.state?.album;
-  const [open, setOpen] = useState(false);
   const [newTrackTitle, setNewTrackTitle] = useState('');
-  const [tracks, setTracks] = useState([]);
-  const [track, setTrack] = useState('');
+  const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [tracks, setTracks] = useState([]);
+  const [track, setTrack] = useState('');
 
   useEffect(() => {
     if (album) {
@@ -49,7 +50,7 @@ const Faixas = () => {
   };
 
   const handleKeyDown = async (event) => {
-    if (event.key === 'Enter' && newTrackTitle.trim() !== '') {
+    if (event.key === 'Enter' && newTrackTitle !== '') {
       try {
         const newTrack = { album_id: album.id, name: newTrackTitle };
         const response = await api.post('api/faixas/criar', newTrack);
@@ -64,10 +65,14 @@ const Faixas = () => {
 
   const handleDeleteTrack = async (trackId) => {
     try {
-      await api.delete(`api/faixas/deletar/${trackId}`);
-      setTracks(tracks.filter((track) => track.id !== trackId));
+        await api.delete('api/faixas/deletar', {
+            params: {
+              id: trackId
+            }
+          });
+        setTracks(tracks.filter((track) => track.id !== trackId));
     } catch (error) {
-      console.error('Erro ao excluir faixa:', error);
+      console.error('Erro ao excluir álbum:', error);
     }
   };
 
@@ -126,7 +131,7 @@ const Faixas = () => {
     <div>
       <div className="container">
         <Typography variant="h4" gutterBottom>
-          {album ? `Todas as Faixas do álbum: ${album.name}` : 'Todas as Faixas da dupla: Tião Carreiro e Pardinho'}
+          {album ? `Todas as Faixas do álbum: ${album.name}` : 'Todas as Faixas da dupla caipira: Tião Carreiro e Pardinho'}
         </Typography>
         <Input
           placeholder="Pesquisar faixa"
@@ -179,11 +184,22 @@ const Faixas = () => {
                 </Card>   
             :   <></>
         }
-        <Modal open={open} onClose={handleClose} aria-labelledby="modal-title" aria-describedby="modal-description">
+      </Container>
+        <Modal 
+            open={open} 
+            onClose={handleClose} 
+            aria-labelledby="modal-title" 
+            aria-describedby="modal-description"
+        >
           <Box sx={modalStyle}>
-            <Typography id="modal-title" variant="h6" component="h2">
-              Adicionar Nova Faixa
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography id="modal-title" variant="h6" component="h2">
+                Adicionar Nova Faixa
+                </Typography>
+                <IconButton onClick={handleClose}>
+                <CloseIcon />
+                </IconButton>
+            </Box>
             <TextField
               id="standard-basic"
               label="Título"
@@ -192,9 +208,11 @@ const Faixas = () => {
               onChange={(e) => setNewTrackTitle(e.target.value)}
               onKeyDown={handleKeyDown}
             />
+            <Typography variant="body2" color="textSecondary" align="center" mt={2}>
+                Pressione Enter para enviar
+            </Typography>
           </Box>
         </Modal>
-      </Container>
     </div>
   );
 };

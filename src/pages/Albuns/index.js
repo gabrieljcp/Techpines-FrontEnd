@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
 import api from '../../services/api';
-import { Box, IconButton, Input, Modal, TextField, Tooltip } from '@mui/material';
+import { Box, IconButton, Input, Modal, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import './styles.css';
 import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
 
 const Container = styled('div')({
   display: 'flex',
@@ -36,7 +35,7 @@ const modalStyle = {
 export default function BasicCard() {
   const [albums, setAlbums] = useState([]);
   const [album, setAlbum] = useState([]);
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [newAlbumTitle, setNewAlbumTitle] = useState('');
@@ -171,9 +170,14 @@ export default function BasicCard() {
             aria-describedby="modal-description"
         >
             <Box sx={modalStyle}>
-                <Typography id="modal-title" variant="h6" component="h2">
-                    Adicionar Novo Álbum
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography id="modal-title" variant="h6" component="h2">
+                        Adicionar Novo Álbum
+                    </Typography>
+                    <IconButton onClick={handleClose}>
+                        <CloseIcon />
+                    </IconButton>
+                </Box>
                 <TextField 
                     id="standard-basic" 
                     label="Título" 
@@ -182,6 +186,9 @@ export default function BasicCard() {
                     onChange={(e) => setNewAlbumTitle(e.target.value)}
                     onKeyDown={handleKeyDown}
                 />
+                <Typography variant="body2" color="textSecondary" align="center" mt={2}>
+                    Pressione Enter para enviar
+                </Typography>
             </Box>
         </Modal>
       </Container>
